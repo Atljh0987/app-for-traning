@@ -18,9 +18,16 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "useDefineForClassFields": true
   },
   "include": [
     "src"
-  ]
+  ],
+  "typeRoots": [
+    "./node_modules/@types"
+  ],
+      "types": [
+      "@openui5/ts-types-esm"
+  ],
 }

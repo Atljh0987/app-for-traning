@@ -1,0 +1,11 @@
+.MainTimer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.MainTimer > p {
+    font-weight: 700;
+    font-size: 40px;
+    margin: 0;
+}

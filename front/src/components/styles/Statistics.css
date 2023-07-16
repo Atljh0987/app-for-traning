@@ -1,0 +1,7 @@
+.Statistics {
+    display: inline-block;
+    width: 300px;
+    height: 300px;
+    border-radius: 15px;
+    box-shadow: inset 0px 0px 7px 7px rgba(0,0,0,0.6);
+}

@@ -1,0 +1,39 @@
+.ActionButtons {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    padding: 10px 0 10px 0;
+}
+
+.ActionButton {
+    display: inline-block;
+    box-shadow: 4px 2px 4px 2px #000;
+    width: 200px;
+    min-width: 200px;
+    margin: 7.5px 5px;
+    cursor: pointer;
+}
+
+.ActionButton:active {
+    transform: translate(0.5px, 0.5px);
+}
+
+/* .StartButton {
+    background-color: green;
+}
+
+.StartButton:hover {
+    background-color: green;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 4px 2px #000;
+}
+
+.StopButton {
+    background-color: yellowgreen;
+}
+
+.StopButton:hover {
+    background-color: green;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 4px 2px #000;
+} */
