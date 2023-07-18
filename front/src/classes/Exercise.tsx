@@ -1,8 +1,8 @@
 class Exercise {
-    name: string;
-    sets: number;
-    reps: number;
-    _completedSets: number = 0;
+    public name: string;
+    public sets: number;
+    public reps: number;
+    private completedSets: number = 0;
 
 
     constructor(name: string, sets: number, reps: number) {
@@ -11,12 +11,12 @@ class Exercise {
         this.reps = reps
     }
 
-    completeSet() {
-        this._completedSets++;
+    public completeSet() : void {
+        this.completedSets++;
     }
 
-    isFinish() {
-        return this.sets > this._completedSets
+    public isFinish() : boolean {
+        return this.sets > this.completedSets
     }
 }
 

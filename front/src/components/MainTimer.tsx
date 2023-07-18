@@ -1,13 +1,13 @@
 import { observer } from "mobx-react";
-import timer from "../mobx/Timer"
 import './styles/MainTimer.css'
-
+import traning from '../classes/Traning'
 
 const MainTimer = observer(() => {
 
+
     return (
         <div className="MainTimer">
-            <p>{timer.timeString}</p>
+            <p>{traning.getTimerValue()}</p>
         </div>
     )
 })

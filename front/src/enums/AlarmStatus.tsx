@@ -1,0 +1,4 @@
+enum AlarmType {
+    Bugilnik,
+    Boop
+}
