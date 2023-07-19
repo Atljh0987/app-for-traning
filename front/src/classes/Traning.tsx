@@ -1,76 +1,71 @@
 import TraningStatus from "../enums/TraningStatus";
-import Exercise from "./Exercise"
+import Alarm from "./Alarm";
 import Timer from "./Timer";
 import { makeAutoObservable } from "mobx"
+import bugilnik from '../resources/sounds/bugilnik.mp3'
+import boop from '../resources/sounds/boop.mp3'
+import ExerciseProcessor from "./ExerciseProcessor";
+import Exercise from "./Exercise";
+import TimerStatus from "../enums/TimerStatus";
 
 class Traning {
-    
-
     public status: TraningStatus = TraningStatus.Stop
 
-    private exercises: Array<Exercise>;
-    private isTraningRun: boolean = false;
-    private timer: Timer = new Timer(2);    
-    private currentExerciseNumber: number = 0;
-    private static instance: Traning;
-    private currentExercise?: Exercise;
+    private exercises: ExerciseProcessor;
+    private restTimer: Timer = new Timer(2, new Alarm(bugilnik));
+    private exerciseTimer: Timer = new Timer(5, new Alarm(boop));
+    private static instance: Traning;    
 
     private constructor() {
         makeAutoObservable(this)
 
-        this.exercises = [
-            new Exercise("Приседания", 4, 30),
-            new Exercise("Присед в ножницы", 3, 12),
-            new Exercise("Мертвая тяга", 4, 12),
-            new Exercise("Подъем таза", 4, 15),
-            new Exercise("Тяга к поясу", 3, 10),
-            new Exercise("Отведение гантели назад с опорой", 3, 10),
-            new Exercise("Отжимания", 3, 10),
-            new Exercise("Сведение гантелей лежа на полу", 3, 12),
-            new Exercise("Тяга ног к поясу лежа", 3, 12),
-        ]
+        this.exercises = new ExerciseProcessor()
+    }
+
+    public getTimerValue(): string {
+        if(this.restTimer.status() !== TimerStatus.Stop) {
+            return this.restTimer.timeString
+        } else if(this.exerciseTimer.status() !== TimerStatus.Stop) {
+            return this.exerciseTimer.timeString
+        } else {
+            return '00:00:00'
+        }        
     }
 
     public start(): void {
-        this.currentExercise = this.exercises[this.currentExerciseNumber]
-        this.timer.start()
+        this.status = TraningStatus.Run
+        this.exerciseTimer.start()
+        this.restTimer.stopAlarm()
     }
 
     public pause(): void {
-        this.timer.pause()
-    }
-
-    public resume(): void {
-        this.timer.resume()
+        this.status = TraningStatus.Pause
+        this.restTimer.pause()
+        this.exerciseTimer.pause()
     }
 
     public stop(): void {
-        this.timer.stop()
+        this.status = TraningStatus.Stop
+        this.restTimer.stop()
+        this.exerciseTimer.stop()
+        this.exercises.reset()
     }
 
-    public reset(): void {
-        this.timer.reset()
+    public resume(): void {
+        this.status = TraningStatus.Run
+        this.restTimer.resume()
+        this.exerciseTimer.resume()
     }
-
-    public finishSet(): void {
-        throw new Error('Method not implemented.');
-    }
-
-
-    public getTimerValue(): string {
-        return this.timer.timeString;
-    }    
-
-    public getCurrentExerciseName() : string {
-        if(!this.currentExercise) return "";
-
-        return this.currentExercise.name;
-    }
-
+    
     public completeSet(): void {
-        if(!this.currentExercise) throw new Error("Тренировка не начата")
+        this.exercises.completeSet()
+        this.restTimer.start()
+        this.exerciseTimer.stop()
+        this.exerciseTimer.stopAlarm()
+    }
 
-        return this.currentExercise.completeSet()
+    public getCurrentExercise(): Exercise {
+        return this.exercises.getCurrentExercise()
     }
 
     public static singleton() : Traning {

@@ -10,7 +10,7 @@ const MainActions = () => {
             <MainTimer/>
             <ActionButtons/>
             <CurrentActionViewer/>
-            <ExerciseTable/>
+            {/* <ExerciseTable/> */}
         </div>
     )
 }

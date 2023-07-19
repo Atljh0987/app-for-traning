@@ -12,18 +12,19 @@ const ActionButtons = () => {
     // }
 
     return <div>
-        <Button variant="success" className='ActionButton' onClick={() => traning.resume()}>Возобновить</Button>
         <Button variant="success" className='ActionButton StartButton' onClick={() => traning.start()}>Старт</Button>
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.finishSet()}>Закончить подход</Button> */}
-        <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button>
-        <Button variant="success" className='ActionButton' onClick={() => traning.reset()}>Сбросить</Button>
-        <Button variant="success" className='ActionButton' onClick={() => traning.stop()}>Остановить</Button>
+        <Button variant="success" className='ActionButton' onClick={() => traning.completeSet()}>Закончить подход</Button>
+        {/* <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button>
+        <Button variant="success" className='ActionButton' onClick={() => traning.resume()}>Возобновить</Button> */}
+        {/* <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button> */}
+        {/* <Button variant="success" className='ActionButton' onClick={() => traning.reset()}>Сбросить</Button> */}
+        {/* <Button variant="success" className='ActionButton' onClick={() => traning.stop()}>Остановить</Button> */}
     </div>
 }
 
 const PauseButtons = () => {
     return <div className='ActionButtons'>
-        <Button variant="success" className='ActionButton' onClick={() => traning.resume()}>Возобновить</Button>
+        {/* <Button variant="success" className='ActionButton' onClick={() => traning.resume()}>Возобновить</Button> */}
     </div>
 }
 
@@ -36,8 +37,8 @@ const StopButtons = () => {
 
 const InProcessButtons = () => {
     return <div className='ActionButtons'>
-        <Button variant="success" className='ActionButton' onClick={() => traning.finishSet()}>Закончить подход</Button>
-        <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button>
+        {/* <Button variant="success" className='ActionButton' onClick={() => traning.finishSet()}>Закончить подход</Button>
+        <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button> */}
     </div>
 }
 export default ActionButtons

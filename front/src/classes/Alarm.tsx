@@ -1,5 +1,7 @@
 class Alarm {
-    private audio: HTMLAudioElement
+    public isRinging: boolean = false
+
+    private audio: HTMLAudioElement    
 
     constructor(src: string) {
         this.audio = new Audio();
@@ -9,10 +11,12 @@ class Alarm {
 
     public play() {
         this.audio.play()
+        this.isRinging = true
     }
 
     public pause() {
-        this.audio.pause()
+        this.audio.pause()        
+        this.isRinging = true
     }
 }
 

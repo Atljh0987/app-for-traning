@@ -15,7 +15,6 @@ class Timer {
   private startTime?: moment.Moment;
   private pauseTime?: moment.Moment;
   private interval?: NodeJS.Timer;
-  private isAlarmRinging: boolean = false;
 
   constructor(minutes: number, alarm: Alarm) {
     makeAutoObservable(this)
@@ -27,6 +26,7 @@ class Timer {
   public start(): void {
     if (this.status() !== TimerStatus.Stop) return;
 
+    this.alarm.pause()
     this.startTime = moment();
     this.setIntervalFunction();
   }
@@ -35,6 +35,7 @@ class Timer {
     if (this.status() !== TimerStatus.Run) return;
 
     this.pauseTime = moment()
+    this.alarm.isRinging = false
 
     clearInterval(this.interval);
     this.interval = undefined;
@@ -43,6 +44,10 @@ class Timer {
   public stop(): void {
     this.pause()
     this.reset()
+  }
+
+  public stopAlarm(): void {
+    this.alarm.pause()
   }
 
   public resume(): void {
@@ -64,13 +69,7 @@ class Timer {
     this.interval = undefined
   }
 
-  public stopAlarm(): void {
-    this.alarm.pause()
-  }
-
-
-
-  private status(): TimerStatus {
+  public status(): TimerStatus {
     const isStop: boolean = this.startTime === undefined && this.interval === undefined
     const isPause: boolean = this.startTime !== undefined && this.interval === undefined && this.pauseTime !== undefined
     const isRun: boolean = this.startTime !== undefined && this.interval !== undefined
@@ -91,7 +90,7 @@ class Timer {
 
     const millisecondsNum = 99 - Math.floor(thisTime.diff(this.startTime) % 1000 / 10);
     const secondsNum = 59 -  Math.floor(thisTime.diff(this.startTime, 'seconds') % 60);
-    const minutesNum = this.minutesBeforeAlarm - 2 - Math.floor(thisTime.diff(this.startTime, 'minutes') % 60);
+    const minutesNum = this.minutesBeforeAlarm - 1 - Math.floor(thisTime.diff(this.startTime, 'minutes') % 60);
 
     const milliseconds = this.addFirstZeroSymbol(millisecondsNum);
     const seconds = this.addFirstZeroSymbol(secondsNum);
@@ -102,11 +101,9 @@ class Timer {
     this.minutesPassed = thisTime.diff(this.startTime, 'minutes')
 
     if(millisecondsNum + secondsNum + minutesNum === 0) {
+      this.startAlarm()
       this.stop()
     }
-
-    // this.startAlarm()
-    // this.startBoop()
   }
 
   private addFirstZeroSymbol(num: number): string {
@@ -114,19 +111,10 @@ class Timer {
   }
 
   private startAlarm(): void {
-    if (this.isAlarmRinging) return;
+    if (!this.alarm.isRinging) return;
 
-    this.startTime = moment()
-    this.isAlarmRinging = true;
-    this.alarm.playBugilnik()
-    this.stop()
-  }
-
-  private startBoop(): void {
-    if (this.isAlarmRinging) return;
-    // if (this.secondsPassed === this.minutesBeforeBoop) return;
-
-    this.alarm.playBoop()
+    this.alarm.isRinging = true
+    this.alarm.play()
   }
 }
 
