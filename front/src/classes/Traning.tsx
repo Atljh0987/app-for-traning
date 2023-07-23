@@ -7,74 +7,149 @@ import boop from '../resources/sounds/boop.mp3'
 import ExerciseProcessor from "./ExerciseProcessor";
 import Exercise from "./Exercise";
 import TimerStatus from "../enums/TimerStatus";
+import Duration from "./Duration";
+import TraningExerciseStatus from "../enums/TraningExerciseStatus";
+import moment from "moment";
 
 class Traning {
-    public status: TraningStatus = TraningStatus.Stop
+  public status: TraningStatus = TraningStatus.Start
+  public exerciseStatus: TraningExerciseStatus = TraningExerciseStatus.Rest;
 
-    private exercises: ExerciseProcessor;
-    private restTimer: Timer = new Timer(2, new Alarm(bugilnik));
-    private exerciseTimer: Timer = new Timer(5, new Alarm(boop));
-    private static instance: Traning;    
+  private traningLength: number = 0;
+  private startTime?: moment.Moment;
+  private exercises: ExerciseProcessor;
+  private timer: Timer;
+  private exerciseTimer: Timer = new Timer(new Duration(5, 0), new Alarm(boop));
+  private static instance: Traning;
 
-    private constructor() {
-        makeAutoObservable(this)
+  private constructor() {
+    makeAutoObservable(this)
 
-        this.exercises = new ExerciseProcessor()
+    this.exercises = new ExerciseProcessor()
+    this.timer = this.exerciseTimer;
+  }
+
+  public getTimerValue(): string {
+    return this.timer.timeString;
+  }
+
+  public getTimerStatus(): TimerStatus {
+    return this.timer.status()
+  }
+
+  public getMaxTraningTimeInSeconds(): number {
+    return this.exercises.getAllCompeletesTimeInSeconds() +
+      this.exerciseTimer.duration.allSeconds() *
+      this.exercises.getExerciseCount()
+  }
+
+  public getMiddleTimeInSeconds(): number {
+    return this.exercises.getAllCompeletesTimeInSeconds() +
+      this.exerciseTimer.duration.allSeconds() * 0.4 *
+      this.exercises.getExerciseCount()
+  }
+
+  public getFinishMiddleTimeString(): string {
+    return this.secondsToString(this.getMiddleTimeInSeconds())
+  }
+
+  public getFinishMaxTimeString(): string {
+    return this.secondsToString(this.getMaxTraningTimeInSeconds())
+  }
+
+  public getCurrentTraningTime(): string {
+    return this.secondsToString(this.traningLength)
+  }
+
+  public start(): void {
+    if (this.status === TraningStatus.Finish) {
+      this.timer.stopTimerAndAlarm();
+      return;
     }
 
-    public getTimerValue(): string {
-        if(this.restTimer.status() !== TimerStatus.Stop) {
-            return this.restTimer.timeString
-        } else if(this.exerciseTimer.status() !== TimerStatus.Stop) {
-            return this.exerciseTimer.timeString
-        } else {
-            return '00:00:00'
-        }        
+    this.exerciseStatus = TraningExerciseStatus.Run
+
+    if (this.traningLength === 0) {
+      this.startTime = moment()
     }
 
-    public start(): void {
-        this.status = TraningStatus.Run
-        this.exerciseTimer.start()
-        this.restTimer.stopAlarm()
-    }
+    this.setTraningLength()
+    this.timer.stopTimerAndAlarm();
+    this.timer = this.exerciseTimer;
+    this.timer.start()
+  }
 
-    public pause(): void {
-        this.status = TraningStatus.Pause
-        this.restTimer.pause()
-        this.exerciseTimer.pause()
-    }
+  public completeSet(): void {
+    this.exerciseStatus = TraningExerciseStatus.Rest
 
-    public stop(): void {
-        this.status = TraningStatus.Stop
-        this.restTimer.stop()
-        this.exerciseTimer.stop()
-        this.exercises.reset()
-    }
-
-    public resume(): void {
-        this.status = TraningStatus.Run
-        this.restTimer.resume()
-        this.exerciseTimer.resume()
-    }
+    this.exercises.completeSet()
+    this.timer.stopTimerAndAlarm();
+    this.setTraningLength()
+    if(this.finish()) return
     
-    public completeSet(): void {
-        this.exercises.completeSet()
-        this.restTimer.start()
-        this.exerciseTimer.stop()
-        this.exerciseTimer.stopAlarm()
+    this.timer = new Timer(this.exercises.getRestTime(), new Alarm(bugilnik));
+    this.timer.start()
+  }
+
+  private finish(): boolean {
+    if (this.isTraningFinish()) {
+      this.status = TraningStatus.Finish
+      return true;
     }
 
-    public getCurrentExercise(): Exercise {
-        return this.exercises.getCurrentExercise()
+    return false
+  }
+
+  private isTraningFinish(): boolean {
+    return this.exercises.isFinish()
+  }
+
+  public isFinish(): boolean {
+    return this.status === TraningStatus.Finish
+  }
+
+  private setTraningLength(): void {
+    if (this.startTime) {
+      this.traningLength = moment().diff(this.startTime, 'seconds')
+    }
+  }
+
+  private secondsToString(sec: number): string {
+    const hours = this.parseTime(Math.floor(sec / 3600))
+    const minutes = this.parseTime(Math.floor((sec % 3600) / 60))
+    const seconds = this.parseTime(Math.floor((sec % 60)))
+
+    return `${hours}:${minutes}:${seconds}`
+  }
+
+  private parseTime(num: number): string {
+    return (num < 10) ? "0" + num : num.toString();
+  }
+
+  // public pause(): void {
+  //     this.status = TraningStatus.Pause
+  //     this.restTimer.pause()
+  //     this.exerciseTimer.pause()
+  // }
+
+  // public resume(): void {
+  //     this.status = TraningStatus.Run
+  //     this.restTimer.resume()
+  //     this.exerciseTimer.resume()
+  // }    
+
+
+  public getCurrentExercise(): Exercise {
+    return this.exercises.getCurrentExercise()
+  }
+
+  public static singleton(): Traning {
+    if (!Traning.instance) {
+      Traning.instance = new Traning()
     }
 
-    public static singleton() : Traning {
-        if(!Traning.instance) {
-            Traning.instance = new Traning()
-        }
-
-        return Traning.instance
-    }
+    return Traning.instance
+  }
 }
 
 const traning = Traning.singleton()

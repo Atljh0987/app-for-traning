@@ -1,10 +1,10 @@
-import Active from './MainFraim';
+import MainFraim from './MainFraim';
 import './styles/Wrapper.css'
 
 const Wrapper = () => {
     return (
         <div className='Wrapper'>
-            <Active />
+            <MainFraim />
         </div>
     )
 }

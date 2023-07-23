@@ -1,7 +1,8 @@
 enum TraningStatus {
     Run,
-    Stop,
-    Pause
+    Pause,
+    Start,
+    Finish
 }
 
 export default TraningStatus

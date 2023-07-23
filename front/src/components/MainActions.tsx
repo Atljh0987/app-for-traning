@@ -1,8 +1,8 @@
-import ExerciseTable from "./ExerciseTable"
 import ActionButtons from "./ActionButtons"
 import './styles/MainActions.css'
 import MainTimer from "./MainTimer"
 import CurrentActionViewer from "./CurrentActionViewer"
+import TraningInfo from "./TraningInfo"
 
 const MainActions = () => {
     return (
@@ -10,6 +10,7 @@ const MainActions = () => {
             <MainTimer/>
             <ActionButtons/>
             <CurrentActionViewer/>
+            <TraningInfo/>
             {/* <ExerciseTable/> */}
         </div>
     )

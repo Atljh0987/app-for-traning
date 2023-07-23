@@ -2,32 +2,32 @@ import { makeAutoObservable } from "mobx"
 import moment from 'moment'
 import Alarm from "./Alarm";
 import TimerStatus from "../enums/TimerStatus";
+import Duration from "./Duration";
 
 class Timer {
   public timeString: string = '00:00:00';
   public minutesPassed = 0;
-  public secondsPassed = 0;
-
-  private minutesBeforeAlarm: number;
+  public secondsPassed = 0;  
+  public duration: Duration;
 
   private alarm: Alarm;
   private timeStep: number = 10;
-  private startTime?: moment.Moment;
+  private endTime?: moment.Moment;
   private pauseTime?: moment.Moment;
   private interval?: NodeJS.Timer;
 
-  constructor(minutes: number, alarm: Alarm) {
+  constructor(duration: Duration, alarm: Alarm) {
     makeAutoObservable(this)
 
     this.alarm = alarm
-    this.minutesBeforeAlarm = minutes
+    this.duration = duration
   }
 
   public start(): void {
     if (this.status() !== TimerStatus.Stop) return;
 
     this.alarm.pause()
-    this.startTime = moment();
+    this.endTime = moment().add(this.duration.allSeconds(), 'seconds');
     this.setIntervalFunction();
   }
 
@@ -50,11 +50,16 @@ class Timer {
     this.alarm.pause()
   }
 
+  public stopTimerAndAlarm() : void {
+    this.stop()
+    this.stopAlarm()
+  }
+
   public resume(): void {
     if (this.status() !== TimerStatus.Pause) return;
 
-    const pauseInSeconds: number = this.pauseTime!.diff(this.startTime, 'milliseconds');
-    this.startTime = moment().subtract(pauseInSeconds, 'milliseconds');
+    const pauseInSeconds: number = this.pauseTime!.diff(this.endTime, 'milliseconds');
+    this.endTime = moment().subtract(pauseInSeconds, 'milliseconds');
 
     this.setIntervalFunction()
     this.pauseTime = undefined
@@ -64,15 +69,15 @@ class Timer {
     if (this.status() !== TimerStatus.Pause) return;
 
     this.timeString = '00:00:00'
-    this.startTime = undefined
+    this.endTime = undefined
     this.pauseTime = undefined
     this.interval = undefined
   }
 
   public status(): TimerStatus {
-    const isStop: boolean = this.startTime === undefined && this.interval === undefined
-    const isPause: boolean = this.startTime !== undefined && this.interval === undefined && this.pauseTime !== undefined
-    const isRun: boolean = this.startTime !== undefined && this.interval !== undefined
+    const isStop: boolean = this.endTime === undefined && this.interval === undefined
+    const isPause: boolean = this.endTime !== undefined && this.interval === undefined && this.pauseTime !== undefined
+    const isRun: boolean = this.endTime !== undefined && this.interval !== undefined
 
     if(isStop) return TimerStatus.Stop
     if(isPause) return TimerStatus.Pause
@@ -88,19 +93,19 @@ class Timer {
   private step(): void {
     const thisTime = moment();
 
-    const millisecondsNum = 99 - Math.floor(thisTime.diff(this.startTime) % 1000 / 10);
-    const secondsNum = 59 -  Math.floor(thisTime.diff(this.startTime, 'seconds') % 60);
-    const minutesNum = this.minutesBeforeAlarm - 1 - Math.floor(thisTime.diff(this.startTime, 'minutes') % 60);
+    const millisecondsNum = Math.floor(this.endTime!.diff(thisTime) % 1000 / 10);
+    const secondsNum = Math.floor(this.endTime!.diff(thisTime, 'seconds') % 60);
+    const minutesNum = Math.floor(this.endTime!.diff(thisTime, 'minutes') % 60);
 
     const milliseconds = this.addFirstZeroSymbol(millisecondsNum);
     const seconds = this.addFirstZeroSymbol(secondsNum);
     const minutes = this.addFirstZeroSymbol(minutesNum);
 
     this.timeString = `${minutes}:${seconds}:${milliseconds}`
-    this.secondsPassed = thisTime.diff(this.startTime, 'seconds')
-    this.minutesPassed = thisTime.diff(this.startTime, 'minutes')
+    this.secondsPassed = thisTime.diff(this.endTime, 'seconds')
+    this.minutesPassed = thisTime.diff(this.endTime, 'minutes')
 
-    if(millisecondsNum + secondsNum + minutesNum === 0) {
+    if(millisecondsNum + secondsNum + minutesNum <= 0) {
       this.startAlarm()
       this.stop()
     }

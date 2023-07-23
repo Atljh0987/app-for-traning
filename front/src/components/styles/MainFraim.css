@@ -10,3 +10,11 @@
     background-color: rgb(99, 99, 99);
     cursor: default;
 }
+
+.MainFraim > .TraningFrame {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+}

@@ -2,43 +2,38 @@
 import './styles/ActionButtons.css'
 import { Button } from 'react-bootstrap';
 import traning from '../classes/Traning';
+import TraningExerciseStatus from '../enums/TraningExerciseStatus';
+import { observer } from 'mobx-react';
+// import React, { useEffect, useRef } from 'react';
+// import { JsxElement } from 'typescript';
 
-const ActionButtons = () => {
+const ActionButtons = observer(() => {
 
-    // switch(traning.status) {
-    //     case TraningStatus.InProcess: return <InProcessButtons/>
-    //     case TraningStatus.Pause: return <PauseButtons/>
-    //     case TraningStatus.Stop: return <StopButtons/>
-    // }
+  const exerciseButtonTap = () => {
+    switch (traning.exerciseStatus) {
+      case TraningExerciseStatus.Run: traning.completeSet(); break;
+      case TraningExerciseStatus.Rest: traning.start(); break;
+      default: console.log("Unknown action")
+    }
+  }
 
-    return <div>
-        <Button variant="success" className='ActionButton StartButton' onClick={() => traning.start()}>Старт</Button>
-        <Button variant="success" className='ActionButton' onClick={() => traning.completeSet()}>Закончить подход</Button>
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button>
-        <Button variant="success" className='ActionButton' onClick={() => traning.resume()}>Возобновить</Button> */}
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button> */}
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.reset()}>Сбросить</Button> */}
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.stop()}>Остановить</Button> */}
+  return <div>
+    <div></div>
+    <div>
+      {
+        (() => {
+          switch (traning.exerciseStatus) {
+            case TraningExerciseStatus.Run: 
+              return <Button variant="success" className='ActionButton' onClick={() => exerciseButtonTap()}>Закончить подход</Button>
+            case TraningExerciseStatus.Rest: 
+              return <Button disabled={traning.isFinish()} variant="success" className='ActionButton StartButton' onClick={() => exerciseButtonTap()}>Старт</Button>;;
+            default: 
+              return <h1>Ошибка</h1>
+          }
+        })()
+      }
     </div>
-}
+  </div>
+})
 
-const PauseButtons = () => {
-    return <div className='ActionButtons'>
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.resume()}>Возобновить</Button> */}
-    </div>
-}
-
-const StopButtons = () => {
-    return <div className='ActionButtons'>
-        <Button variant="success" className='ActionButton StartButton' onClick={() => traning.start()}>Начать тренировку</Button>
-        {/* <Button variant="success" className='ActionButton StopButton' onClick={() => traning.stopTraning()}>Закончить тренировку</Button> */}
-    </div>
-}
-
-const InProcessButtons = () => {
-    return <div className='ActionButtons'>
-        {/* <Button variant="success" className='ActionButton' onClick={() => traning.finishSet()}>Закончить подход</Button>
-        <Button variant="success" className='ActionButton' onClick={() => traning.pause()}>Пауза</Button> */}
-    </div>
-}
 export default ActionButtons
